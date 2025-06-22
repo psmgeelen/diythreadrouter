@@ -28,9 +28,21 @@ tasks:
     dir: esp-idf/examples/openthread/ot_rcp
     interactive: true
     cmds:
-    - idf.py set-target esp32h2
-    - idf.py menuconfig # this opens an interactive tool to create settings, make sure to save the options. This set the bootloader settings, essential for compilation
-    - idf.py build
+    - echo "Injecting sdkconfig.defaults..."
+    - |
+      cat << 'EOF' > sdkconfig.defaults
+      CONFIG_IDF_TARGET="esp32h2"
+      CONFIG_OPENTHREAD_RCP=y
+      CONFIG_OPENTHREAD_NCP=n
+      CONFIG_OPENTHREAD_NCP_SPI_ENABLE=n
+      CONFIG_OPENTHREAD_NCP_UART_ENABLE=n
+      CONFIG_BT_ENABLED=n
+      CONFIG_WIFI_ENABLED=n
+      CONFIG_ESP_COREDUMP_ENABLE_TO_NONE=y
+      CONFIG_PARTITION_TABLE_CUSTOM=y
+      EOF
+    - >
+      bash -c "source ../../../export.sh && idf.py -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults\" set-target esp32h2 build"
 
   _flash_firmware_from_build:
     internal: true
